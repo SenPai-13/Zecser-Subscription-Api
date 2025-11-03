@@ -1,0 +1,183 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Subscription Management API",
+    "version": "1.0.0",
+    "description": "API for managing user subscriptions with lifecycle tracking"
+  },
+  "paths": {
+    "/api/subscriptions/create": {
+      "post": {
+        "summary": "Create a new subscription",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SubscriptionCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Subscription created" },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/api/subscriptions/{id}": {
+      "get": {
+        "summary": "Get subscription by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Subscription details" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/subscriptions/{id}/cancel": {
+      "patch": {
+        "summary": "Cancel a subscription",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Subscription canceled" },
+          "404": { "description": "Not found" },
+          "409": { "description": "Already canceled" }
+        }
+      }
+    },
+    "/api/subscriptions/{id}/update-plan": {
+      "patch": {
+        "summary": "Update subscription plan or duration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SubscriptionUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Subscription updated" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/subscriptions/user/{userId}": {
+      "get": {
+        "summary": "Get all subscriptions for a user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "List of subscriptions" }
+        }
+      }
+    },
+    "/api/subscriptions/{id}/start-trial": {
+      "patch": {
+        "summary": "Start a trial period",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Trial started" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/subscriptions/{id}/renew": {
+      "patch": {
+        "summary": "Renew a subscription",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Subscription renewed" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/subscriptions/active": {
+      "get": {
+        "summary": "Get all active subscriptions",
+        "responses": {
+          "200": { "description": "List of active subscriptions" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubscriptionCreate": {
+        "type": "object",
+        "required": ["userId", "plan", "duration"],
+        "properties": {
+          "userId": { "type": "string" },
+          "plan": { "type": "string" },
+          "duration": { "type": "string", "enum": ["monthly", "yearly"] }
+        }
+      },
+      "SubscriptionUpdate": {
+        "type": "object",
+        "properties": {
+          "plan": { "type": "string" },
+          "duration": { "type": "string", "enum": ["monthly", "yearly"] }
+        }
+      },
+      "Subscription": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "userId": { "type": "string" },
+          "plan": { "type": "string" },
+          "duration": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["active", "canceled", "paused", "expired"]
+          },
+          "isTrial": { "type": "boolean" },
+          "isActive": { "type": "boolean" },
+          "startedAt": { "type": "string", "format": "date-time" },
+          "nextBillingDate": { "type": "string", "format": "date-time" },
+          "canceledAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}
